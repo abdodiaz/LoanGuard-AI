@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoanGuard - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header h1 { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .header p { color: var(--text-muted); margin-top: 0.5rem; font-size: 0.95rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: #334155; }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+
+        #error-message {
+            background: #fef2f2;
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+            text-align: center;
+            border: 1px solid #fee2e2;
+        }
+
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="header">
+            <h1>LoanGuard AI</h1>
+            <p>Accédez à votre tableau de bord</p>
+        </div>
+
+        <div id="error-message"></div>
+
+        <div class="form-group">
+            <label for="username">Email Professionnel</label>
+            <input type="email" id="username" placeholder="nom@exemple.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+
+        <button onclick="performLogin()">Se connecter</button>
+
+        <div class="footer">
+            Pas encore de compte ? <a href="/static/register.html">S'inscrire</a>
+        </div>
+    </div>
+
+    <script>
+        async function performLogin() {
+            const userVal = document.getElementById('username').value;
+            const passVal = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-message');
+
+            // Reset state
+            errorDiv.style.display = 'none';
+
+            if (!userVal || !passVal) {
+                errorDiv.innerText = "Veuillez remplir tous les champs.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('username', userVal);
+            formData.append('password', passVal);
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 1. Sauvegarder le token JWT
+                    localStorage.setItem('token', data.access_token);
+                    
+                    // 2. Redirection Intelligente
+                    console.log("Rôle détecté:", data.role);
+                    
+                    if (data.role === 'admin') {
+                        window.location.href = '/static/admin.html';
+                    } else {
+                        window.location.href = '/static/predict.html';
+                    }
+                } else {
+                    errorDiv.innerText = data.detail || "Email ou mot de passe incorrect.";
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.innerText = "Erreur de communication avec le serveur.";
+                errorDiv.style.display = 'block';
+                console.error("Login Error:", err);
+            }
+        }
+
+        // Support de la touche Entrée
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') performLogin();
+        });
+    </script>
+</body>
+</html>

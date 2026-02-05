@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>LoanGuard - Prediction</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; }
+        nav { background: #1e293b; padding: 15px; display: flex; justify-content: space-around; }
+        nav a { color: white; text-decoration: none; font-weight: 500; }
+        .main-container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-size: 13px; color: #64748b; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .full { grid-column: span 2; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none; }
+        .btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/static/predict.html">Prédiction</a>
+        <a href="/static/history.html">Mon Historique</a>
+        <a href="#" onclick="logout()">Déconnexion</a>
+    </nav>
+
+    <div class="main-container">
+        <h2>Demande de Prêt</h2>
+        <div class="grid">
+            <div><label>Genre</label><select id="Gender"><option>Male</option><option>Female</option></select></div>
+            <div><label>Marié(e)</label><select id="Married"><option>Yes</option><option>No</option></select></div>
+            <div><label>Dépendants</label><select id="Dependents"><option>0</option><option>1</option><option>2</option><option>3+</option></select></div>
+            <div><label>Éducation</label><select id="Education"><option>Graduate</option><option>Not Graduate</option></select></div>
+            <div><label>Revenu Mensuel ($)</label><input type="number" id="ApplicantIncome" value="5000"></div>
+            <div><label>Crédit Historique</label><select id="Credit_History"><option value="1.0">Oui</option><option value="0.0">Non</option></select></div>
+            <div class="full"><label>Zone du bien</label><select id="Property_Area"><option>Urban</option><option>Semiurban</option><option>Rural</option></select></div>
+        </div>
+        <button class="btn" onclick="sendPrediction()">Lancer l'analyse AI</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function sendPrediction() {
+            const token = localStorage.getItem('token');
+            const payload = {
+                Gender: document.getElementById('Gender').value,
+                Married: document.getElementById('Married').value,
+                Dependents: document.getElementById('Dependents').value,
+                Education: document.getElementById('Education').value,
+                Self_Employed: "No",
+                ApplicantIncome: parseInt(document.getElementById('ApplicantIncome').value),
+                CoapplicantIncome: 0,
+                LoanAmount: 150,
+                Loan_Amount_Term: 360,
+                Credit_History: parseFloat(document.getElementById('Credit_History').value),
+                Property_Area: document.getElementById('Property_Area').value
+            };
+
+            const res = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            const resDiv = document.getElementById('result');
+            resDiv.style.display = 'block';
+            resDiv.style.background = data.prediction === 'Approved' ? '#d1fae5' : '#fee2e2';
+            resDiv.innerHTML = `<strong>Résultat: ${data.prediction}</strong> (Probabilité: ${data.probability})`;
+        }
+
+        function logout() { localStorage.removeItem('token'); window.location.href = '/static/login.html'; }
+    </script>
+</body>
+</html>

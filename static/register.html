@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>LoanGuard - Inscription</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #2d3748; margin-bottom: 24px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 16px; }
+        button:hover { background: #059669; }
+        .links { margin-top: 20px; font-size: 14px; color: #718096; }
+        a { color: #4a90e2; text-decoration: none; font-weight: bold; }
+        #status { margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rejoignez LoanGuard</h1>
+        <p>Créez votre compte pour analyser vos prêts</p>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Mot de passe">
+        <button onclick="doRegister()">S'inscrire</button>
+        <div id="status"></div>
+        <div class="links">
+            Déjà un compte ? <a href="/static/login.html">Se connecter</a>
+        </div>
+    </div>
+
+    <script>
+        async function doRegister() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const statusDiv = document.getElementById('status');
+
+            const res = await fetch(`/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, { 
+                method: 'POST' 
+            });
+
+            if (res.ok) {
+                statusDiv.style.color = "#059669";
+                statusDiv.innerText = "Compte créé avec succès ! Redirection...";
+                setTimeout(() => window.location.href = '/static/login.html', 2000);
+            } else {
+                const data = await res.json();
+                statusDiv.style.color = "#e53e3e";
+                statusDiv.innerText = data.detail || "Erreur lors de l'inscription";
+            }
+        }
+    </script>
+</body>
+</html>

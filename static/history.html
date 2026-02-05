@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>LoanGuard - Historique</title>
+    <style>
+        body { font-family: sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f1f5f9; }
+        .Approved { color: green; font-weight: bold; }
+        .Rejected { color: red; font-weight: bold; }
+    </style>
+</head>
+<body onload="loadHistory()">
+    <div class="container">
+        <h2>Mon Historique (10 dernières)</h2>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Résultat</th>
+                    <th>Probabilité</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <br>
+        <a href="/static/predict.html">← Retour à la prédiction</a>
+    </div>
+
+    <script>
+        async function loadHistory() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("Connectez-vous d'abord!");
+                window.location.href = "/static/login.html";
+                return;
+            }
+
+            try {
+                const res = await fetch('/history', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (res.status === 401) {
+                    window.location.href = "/static/login.html";
+                    return;
+                }
+
+                const data = await res.json();
+                const tbody = document.querySelector('#historyTable tbody');
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Aucun historique trouvé.</td></tr>";
+                    return;
+                }
+
+                data.forEach(item => {
+                    const row = `<tr>
+                        <td>${new Date(item.created_at).toLocaleString()}</td>
+                        <td class="${item.prediction}">${item.prediction}</td>
+                        <td>${item.probability}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } catch (err) {
+                console.error("Erreur:", err);
+            }
+        }
+    </script>
+</body>
+</html>

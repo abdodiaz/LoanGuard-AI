@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: diazpg
+      POSTGRES_PASSWORD: diazpg123
+      POSTGRES_DB: loan_db
+    ports:
+      - "5433:5432" # 5433 men berra, 5432 men l-dakhel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: fastapi_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      # West Docker, l-host houwa "db" o l-port houwa "5432"
+      DATABASE_URL: postgresql://diazpg:diazpg123@db:5432/loan_db
+      SECRET_KEY: "diaz123"
+    ports:
+      - "8000:8000"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
