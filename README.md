@@ -47,7 +47,7 @@ The application follows a modern API-first architecture:
 ### Steps to Run
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/loanguard-ai.git](https://github.com/yourusername/loanguard-ai.git)
+    git clone [https://github.com/abdodiaz/loanguard-ai.git](https://github.com/abdodiaz/loanguard-ai.git)
     cd loanguard-ai
     ```
 
