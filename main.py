@@ -14,19 +14,18 @@ from jose import jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 
-import init_db  # Database models o SessionLocal
+import init_db  # Database models / SessionLocal
 
-# 1. Configuration & Security
+# 1. Configuration et Security
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY", "diaz123")
 ALGORITHM = "HS256"
 
-# Logic dial l-DATABASE_URL:
-# West Docker host khass i-koun "db". "localhost" k-i-khdem ghir ila lancyiti l-app bla Docker.
+
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://diazpg:diazpg123@db:5432/loan_db")
 
-# Creer l-engine (DAROURI i-koun hna 9bel create_all)
+# Creer l-engine 
 engine = create_engine(DATABASE_URL)
 
 # Automatic Table Creation

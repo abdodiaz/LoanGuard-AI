@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: diazpg123
       POSTGRES_DB: loan_db
     ports:
-      - "5433:5432" # 5433 men berra, 5432 men l-dakhel
+      - "5433:5432" 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     environment:
-      # West Docker, l-host houwa "db" o l-port houwa "5432"
+      
       DATABASE_URL: postgresql://diazpg:diazpg123@db:5432/loan_db
       SECRET_KEY: "diaz123"
     ports:
